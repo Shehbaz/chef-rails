@@ -16,3 +16,5 @@ cookbook 'rvm'
 cookbook 'ssh-hardening'
 cookbook 'sudo'
 cookbook 'timezone-ii'
+cookbook 'mysql'
+cookbook 'devbox-recipies',:path => "site-cookbooks/devbox-recipies"

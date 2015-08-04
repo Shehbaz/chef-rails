@@ -13,17 +13,25 @@ SITE
       runit (~> 1.0)
       yum (~> 3.0)
       yum-epel (>= 0.0.0)
+    mysql (6.1.0)
+      smf (>= 0.0.0)
+      yum-mysql-community (>= 0.0.0)
     packagecloud (0.0.18)
+    rbac (1.0.3)
     runit (1.6.0)
       packagecloud (>= 0.0.0)
     rvm (0.9.4)
       chef_gem (>= 0.0.0)
+    smf (2.2.7)
+      rbac (>= 1.0.1)
     ssh-hardening (1.1.0)
     sudo (2.7.1)
     timezone-ii (0.2.0)
     yum (3.6.1)
     yum-epel (0.6.0)
       yum (~> 3.0)
+    yum-mysql-community (0.1.17)
+      yum (>= 3.0)
 
 GIT
   remote: https://github.com/phlipper/chef-postgresql.git
@@ -63,12 +71,19 @@ GIT
   specs:
     passenger (0.2.0)
 
+PATH
+  remote: site-cookbooks/devbox-recipies
+  specs:
+    devbox-recipies (0.1.0)
+
 DEPENDENCIES
   apt (>= 0)
+  devbox-recipies (>= 0)
   dpkg_packages (>= 0)
   fail2ban (>= 0)
   hostnames (>= 0)
   memcached (>= 0)
+  mysql (>= 0)
   nginx (>= 0)
   passenger (>= 0)
   postgresql (>= 0)
