@@ -2,7 +2,7 @@
 # Cookbook Name:: devbox-recipies
 # Recipe:: default
 #
-# Copyright 2015, YOUR_COMPANY_NAME
+# Copyright 2015, Devbox
 #
 # All rights reserved - Do Not Redistribute
 #
