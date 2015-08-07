@@ -3,11 +3,11 @@
 Kitchen to setup an Ubuntu Server ready to roll for Ruby on Rails stack:
 
 * Nginx
-* PostgreSQL
+* MySQL
 * Redis
 * Memcached
 * Ruby with RVM
-* Phusion Passenger Standalone
+* Unicorn 
 
 ## Requirements
 
@@ -17,7 +17,7 @@ Kitchen to setup an Ubuntu Server ready to roll for Ruby on Rails stack:
 
 To cook with this kitchen you must follow four easy steps.
 
-### 0. Create server deploy user (Optional)
+### 0. Create server deploy user (Optional), will be used in unicorn as well.
 
 We create our deploy user in deploy server adding our SSH keys:
 ```bash
@@ -60,101 +60,100 @@ For the very same reason, we’re going to exaplain the example for you to ride 
 
 ```json
 {
-  // This is the list of the recipes that are going to be cooked.
-  "run_list": [
-    "recipe[apt]",
-    "recipe[sudo]",
-    "recipe[hostnames]",
-    "recipe[ssh-hardening]",
-    "recipe[dpkg_packages]",
-    "recipe[timezone-ii]",
-    "recipe[postgresql::server]",
-    "recipe[postgresql::contrib]",
-    "recipe[postgresql::libpq]",
-    "recipe[nginx::server]",
-    "recipe[rvm::user]",
-    "recipe[passenger]",
-    "recipe[redis::server]",
-    "recipe[memcached]",
-    "recipe[fail2ban]"
-  ],
+    // This is the list of the recipes that are going to be cooked.
+    "run_list": [
+        "recipe[apt]",
+        "recipe[sudo]",
+        "recipe[hostnames]",
+        "recipe[dpkg_packages]",
+        "recipe[timezone-ii]",
+        "recipe[postgresql::server]",
+        "recipe[postgresql::contrib]",
+        "recipe[postgresql::libpq]",
+        "recipe[nginx::server]",
+        "recipe[rvm::user]",
+        "recipe[redis::server]",
+        "recipe[memcached]",
+        "recipe[fail2ban]",
+        "recipe[devbox-recipies]"
+    ],
 
-  "automatic": {
-    "ipaddress": "<host_ip>"
-  },
+    "automatic": {
+        "ipaddress": "127.0.0.1"
+    },
 
-  // You must define who’s going to be the user(s) you’re going to use for deploy.
-  "authorization": {
-    "sudo": {
-      "groups"      : ["sudo","admin"],
-      "users"       : ["deploy","vagrant"],
-      "passwordless": true
+    // You must define who’s going to be the user(s) you’re going to use for deploy.
+    "authorization": {
+        "sudo": {
+            "groups"      : ["sudo"],
+            "users"       : ["deploy"],
+            "passwordless": true
+        }
+    },
+
+    // Set hostname
+    "set_fqdn": "host",
+
+    // List all the system packages required by the services and gems you’re using in your apps.
+    // To give you an example: If you’re using paperclip, the native extensions compilation will fail unless you have installed imagemagick declared below.
+    "dpkg_packages": {
+        "pkgs": {
+            "tzdata"     : { "action": "upgrade" },
+            "nodejs-dev" : { "action": "install" },
+            "imagemagick": { "action": "install" },
+            "htop"       : { "action": "install" }
+        }
+    },
+
+    // Select Timezone you want to configure
+    "tz": "America/Santiago",
+
+    // Postgresql configuration. You can create several users.
+    "postgresql": {
+        "shared_buffers": "1024MB", // 1/4 of total memory is recommended
+        "shared_preload_libraries": "pg_stat_statements",
+        "users": [
+            {
+                "username": "rails",
+                "password": "password",
+                "superuser": true,
+                "login": true,
+                "createdb": true
+            }
+        ]
+    },
+
+    // Nginx default values configuration.
+    // Also you can specify your default site configuration.
+    "nginx": {
+        "user"                : "deploy",
+        "client_max_body_size": "128m",
+        "worker_processes"    : "auto",
+        "worker_connections"  : 768,
+        "repository"          : "ppa",
+        "site"                : {
+            "host"           : "host",
+            "upstream_ports" : ["3000"],
+            "ip"             : "0.0.0.0",
+            "listen"         : "80"
+        }
+    },
+
+    // The default ruby version and gemset you’re going to use and rvm user.
+    "rvm" : {
+        "user_installs": [
+            {
+                "user"         : "deploy",
+                "default_ruby" : "2.1.3@global"
+            }
+        ]
+    },
+    // Fail2ban configuration to protect our server against SSH attack attempts
+    "fail2ban": {
+        "bantime" : 600,
+        "maxretry": 3,
+        "backend" : "auto"
     }
-  },
-
-  // Set hostname
-  "set_fqdn": "<myhostname>",
-
-  // List all the system packages required by the services and gems you’re using in your apps.
-  // To give you an example: If you’re using paperclip, the native extensions compilation will fail unless you have installed imagemagick declared below.
-  "dpkg_packages": {
-    "pkgs": {
-      "tzdata"     : { "action": "upgrade" },
-      "nodejs-dev" : { "action": "install" },
-      "imagemagick": { "action": "install" },
-      "htop"       : { "action": "install" }
-    }
-  },
-
-  // Select Timezone you want to configure
-  "tz": "America/Santiago",
-
-  // Postgresql configuration. You can create several users.
-  "postgresql": {
-    "shared_buffers": "256MB", // 1/4 of total memory is recommended
-    "shared_preload_libraries": "pg_stat_statements",
-    "users": [
-      {
-        "username": "deploy",
-        "password": "123456",
-        "superuser": true,
-        "login": true
-      }
-    ]
-  },
-
-  // Nginx default values configuration.
-  // Also you can specify your default site configuration.
-  "nginx": {
-    "user"                : "deploy",
-    "client_max_body_size": "2m",
-    "worker_processes"    : "auto",
-    "worker_connections"  : 768,
-    "repository"          : "ppa",
-    "site"                : {
-      "host"           : "<myhostname>",
-      "upstream_ports" : ["3000"],
-      "ip"             : "0.0.0.0",
-      "listen"         : "80"
-    }
-  },
-
-  // The default ruby version and gemset you’re going to use and rvm user.
-  "rvm" : {
-    "user_installs": [
-      {
-        "user"         : "deploy",
-        "default_ruby" : "<ruby-version>@<gemset>"
-      }
-    ]
-  },
-
-  // Fail2ban configuration to protect our server against SSH attack attempts
-  "fail2ban": {
-    "bantime" : 600,
-    "maxretry": 3,
-    "backend" : "auto"
-  }
 }
 ```
 
