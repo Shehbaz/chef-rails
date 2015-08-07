@@ -7,7 +7,7 @@ Kitchen to setup an Ubuntu Server ready to roll for Ruby on Rails stack:
 * Redis
 * Memcached
 * Ruby with RVM
-* Unicorn 
+* Unicorn
 
 ## Requirements
 

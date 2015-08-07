@@ -27,6 +27,7 @@ SITE
     ssh-hardening (1.1.0)
     sudo (2.7.1)
     timezone-ii (0.2.0)
+    unicorn (2.0.0)
     yum (3.6.1)
     yum-epel (0.6.0)
       yum (~> 3.0)
@@ -92,4 +93,5 @@ DEPENDENCIES
   ssh-hardening (>= 0)
   sudo (>= 0)
   timezone-ii (>= 0)
+  unicorn (>= 0)
 
