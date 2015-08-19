@@ -30,8 +30,8 @@ sudo chown -R deploy:deploy /home/deploy/
 ### 1. Prepare your local working copy
 
 ```bash
-git clone git://github.com/acidlabs/chef-rails.git chef
-cd chef
+git clone https://github.com/Shehbaz/chef-rails
+cd chef-rails
 bundle install
 bundle exec librarian-chef install
 ```
