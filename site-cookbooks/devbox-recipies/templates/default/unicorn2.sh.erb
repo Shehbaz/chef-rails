@@ -1,0 +1,19 @@
+#!/bin/bash -l
+cd /data/heromiles/current
+case "$1" in
+        start)
+                bundle exec unicorn -c config/unicorn.rb -D -E production
+                ;;
+        stop)
+                kill -9 `cat /data/heromiles/shared/pids/unicorn.pid`
+                ;;
+        restart)
+                kill -9 `cat /data/heromiles/shared/pids/unicorn.pid`
+                bundle exec unicorn -c config/unicorn.rb -D -E production
+                ;;
+        *)
+                echo "Usage: $basename <stop|start|restart>"
+                exit 1
+                ;;
+esac
+exit 0
